@@ -1,4 +1,4 @@
-batch_kode,qc_username,nilai_cs137,batas_aman_cs137,kesimpulan,tanggal_uji
-IND-2024-001,qc_jkt,0.35,1.0,AMAN,2024-04-25
-IND-2024-002,qc_jkt,1.40,1.0,BERMASALAH,2024-06-18
-SBY-2024-001,qc_sby,0.90,1.0,AMAN,2024-06-04
+batch_kode,qc_username,nilai_cs137,kesimpulan,tanggal_uji
+BATCH-001,qc_andi,0.30,AMAN,2025-01-10
+BATCH-002,qc_andi,0.85,AMAN,2025-01-12
+BATCH-003,qc_budi,1.20,BERMASALAH,2025-01-15

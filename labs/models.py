@@ -17,7 +17,6 @@ class Laboratory(models.Model):
 class LabTest(models.Model):
     batch = models.OneToOneField(HarvestBatch, on_delete=models.CASCADE, related_name='lab_test')
     nilai_cs137 = models.FloatField()
-    batas_aman_cs137 = models.FloatField(null=True, blank=True)
 
     kesimpulan = models.CharField(
         max_length=20,
@@ -43,6 +42,16 @@ class LabTest(models.Model):
         """Mengambil lab dari UserProfile QC."""
         # Menghindari error jika laboratory belum di-set di UserProfile
         return getattr(self.qc, "laboratory", None)
+    
+    @property
+    def effective_batas_aman(self):
+        # 1) Kalau lab isi manual → pakai itu
+        if self.batas_aman_cs137 is not None:
+            return self.batas_aman_cs137
+
+        # 2) Kalau tidak, pakai default dari komoditas
+        commodity = self.batch.commodity
+        return getattr(commodity, "default_batas_aman_cs137", None)
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
