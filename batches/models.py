@@ -13,7 +13,13 @@ class HarvestBatch(models.Model):
 
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name="batches")
     kode_batch = models.CharField(max_length=50, unique=True)
-    commodity = models.CharField(max_length=100) # udang, bandeng, rumput laut, dll.
+
+    commodity = models.ForeignKey(
+        "commodities.Commodity",
+        on_delete=models.PROTECT,
+        related_name="batches",
+    )
+    
     tanggal_tebar = models.DateField()
     tanggal_panen = models.DateField()
     volume_kg = models.FloatField()
@@ -134,3 +140,14 @@ class Activity(models.Model):
 
     def __str__(self):
         return f"{self.batch.kode_batch} - {self.get_jenis_display()} ({self.tanggal})"
+
+class Commodity(models.Model):
+    code = models.CharField(max_length=20, unique=True)  # "UDANG", "BANDENG"
+    name = models.CharField(max_length=100)              # "Udang Vaname"
+    default_batas_aman_cs137 = models.FloatField(
+        null=True, blank=True,
+        help_text="Limit aman Cs-137 (Bq/kg) untuk komoditas ini"
+    )
+
+    def __str__(self):
+        return self.name
