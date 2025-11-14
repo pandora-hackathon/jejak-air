@@ -152,17 +152,24 @@ class Command(BaseCommand):
             reader = csv.DictReader(f)
             for row in reader:
                 city = City.objects.get(name=row["city_name"].strip())
+
+                owner_username = row["owner_username"].strip()
+                from profiles.models import UserProfile
+                owner = UserProfile.objects.get(user__username=owner_username)
+
                 farm, created = Farm.objects.get_or_create(
                     name=row["name"].strip(),
                     defaults={
                         "city": city,
                         "location": row["location"].strip(),
+                        "owner": owner,
                         # risk_score pakai default=30 dulu
                     },
                 )
                 if not created:
                     farm.city = city
                     farm.location = row["location"].strip()
+                    farm.owner = owner
                     farm.save()
 
     def load_batches(self, base_dir: Path):
@@ -185,8 +192,8 @@ class Command(BaseCommand):
                         "volume_kg": float(row["volume_kg"]),
                         "tujuan": row["tujuan"].strip(),
                         "quality_status": row["quality_status"].strip() or "PENDING",
-                        # risk_score biarkan NULL (None)
                         "is_shipped": is_shipped,
+                        # risk_score biarkan None
                     },
                 )
                 if not created:
@@ -202,15 +209,21 @@ class Command(BaseCommand):
 
     def load_activities(self, base_dir: Path):
         path = base_dir / "activities.csv"
-        self.stdout.write(f"Import Activity dari {path} ...")
+        self.stdout.write(f"Import Activity (LAINNYA) dari {path} ...")
         with path.open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
+                jenis = row["jenis"].strip()
+                if jenis != "LAINNYA":
+                    # Abaikan jenis lain, supaya tidak bentrok
+                    # dengan event otomatis
+                    continue
+
                 batch = HarvestBatch.objects.get(kode_batch=row["batch_kode"].strip())
                 Activity.objects.get_or_create(
                     batch=batch,
                     tanggal=row["tanggal"].strip(),
-                    jenis=row["jenis"].strip(),
+                    jenis="LAINNYA",
                     lokasi=row["lokasi"].strip(),
                     pelaku=row["pelaku"].strip(),
                     keterangan=(row.get("keterangan") or "").strip(),
@@ -224,12 +237,13 @@ class Command(BaseCommand):
             for row in reader:
                 batch = HarvestBatch.objects.get(kode_batch=row["batch_kode"].strip())
                 qc_username = row["qc_username"].strip()
+
                 qc_profile = UserProfile.objects.get(user__username=qc_username)
 
                 nilai_cs137 = parse_float(row["nilai_cs137"])
                 batas_aman_cs137 = parse_float(row["batas_aman_cs137"])
 
-                lab_test, created = LabTest.objects.get_or_create(
+                lab_test, created = LabTest.objects.update_or_create(
                     batch=batch,
                     defaults={
                         "qc": qc_profile,
@@ -239,10 +253,4 @@ class Command(BaseCommand):
                         "tanggal_uji": row["tanggal_uji"].strip(),
                     },
                 )
-                if not created:
-                    lab_test.qc = qc_profile
-                    lab_test.nilai_cs137 = nilai_cs137
-                    lab_test.batas_aman_cs137 = batas_aman_cs137
-                    lab_test.kesimpulan = row["kesimpulan"].strip()
-                    lab_test.tanggal_uji = row["tanggal_uji"].strip()
-                    lab_test.save()
+
