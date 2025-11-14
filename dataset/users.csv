@@ -1,0 +1,6 @@
+username,email,role,first_name,last_name,password
+admin1,admin@example.com,admin,Ani,Admin,admin123
+owner_aman,owner_aman@example.com,farmOwner,Budi,Santoso,owner123
+owner_laut,owner_laut@example.com,farmOwner,Chandra,Putra,owner123
+qc_jkt,qc_jkt@example.com,labAssistant,Dewi,Lestari,qc123
+qc_sby,qc_sby@example.com,labAssistant,Eka,Pratama,qc123
