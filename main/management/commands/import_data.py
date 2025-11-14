@@ -10,24 +10,19 @@ from farms.models import City, Farm
 from batches.models import HarvestBatch, Activity
 from labs.models import Laboratory, LabTest
 
-
 User = get_user_model()
-
 
 def parse_int(value):
     value = (value or "").strip()
     return int(value) if value else None
 
-
 def parse_float(value):
     value = (value or "").strip()
     return float(value) if value else None
 
-
 def parse_bool(value):
     value = (value or "").strip().lower()
     return value in ("1", "true", "t", "yes", "y")
-
 
 class Command(BaseCommand):
     help = "Import initial CSV data for aquaculture traceability app"
@@ -157,20 +152,17 @@ class Command(BaseCommand):
             reader = csv.DictReader(f)
             for row in reader:
                 city = City.objects.get(name=row["city_name"].strip())
-                risk_score = parse_int(row["risk_score"])
                 farm, created = Farm.objects.get_or_create(
                     name=row["name"].strip(),
                     defaults={
                         "city": city,
                         "location": row["location"].strip(),
-                        "risk_score": risk_score or 0,
+                        # risk_score pakai default=30 dulu
                     },
                 )
                 if not created:
                     farm.city = city
                     farm.location = row["location"].strip()
-                    if risk_score is not None:
-                        farm.risk_score = risk_score
                     farm.save()
 
     def load_batches(self, base_dir: Path):
@@ -181,8 +173,6 @@ class Command(BaseCommand):
             for row in reader:
                 farm = Farm.objects.get(name=row["farm_name"].strip())
                 kode_batch = row["kode_batch"].strip()
-
-                risk_score = parse_int(row["risk_score"])
                 is_shipped = parse_bool(row["is_shipped"])
 
                 batch, created = HarvestBatch.objects.get_or_create(
@@ -190,24 +180,23 @@ class Command(BaseCommand):
                     defaults={
                         "farm": farm,
                         "commodity": row["commodity"].strip(),
-                        "tanggal_tebar": row["tanggal_tebar"].strip(),
+                        "tanggal_tebar": row["tanggal_tebar"].strip() or None,
                         "tanggal_panen": row["tanggal_panen"].strip(),
                         "volume_kg": float(row["volume_kg"]),
                         "tujuan": row["tujuan"].strip(),
                         "quality_status": row["quality_status"].strip() or "PENDING",
-                        "risk_score": risk_score,
+                        # risk_score biarkan NULL (None)
                         "is_shipped": is_shipped,
                     },
                 )
                 if not created:
                     batch.farm = farm
                     batch.commodity = row["commodity"].strip()
-                    batch.tanggal_tebar = row["tanggal_tebar"].strip()
+                    batch.tanggal_tebar = row["tanggal_tebar"].strip() or None
                     batch.tanggal_panen = row["tanggal_panen"].strip()
                     batch.volume_kg = float(row["volume_kg"])
                     batch.tujuan = row["tujuan"].strip()
-                    batch.quantity_status = row["quality_status"].strip() or "PENDING"
-                    batch.risk_score = risk_score
+                    batch.quality_status = row["quality_status"].strip() or "PENDING"
                     batch.is_shipped = is_shipped
                     batch.save()
 

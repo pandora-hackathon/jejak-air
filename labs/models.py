@@ -27,7 +27,7 @@ class LabTest(models.Model):
     qc = models.ForeignKey(
         UserProfile,
         on_delete=models.PROTECT,
-        limit_choices_to={"role": "QC"}, # hanya QC yang bisa input
+        limit_choices_to={"user__role": "labAssistant"}, # hanya QC/labAssistant yang bisa input
     )
 
     class Meta:
@@ -41,3 +41,14 @@ class LabTest(models.Model):
         """Mengambil lab dari UserProfile QC."""
         # Menghindari error jika laboratory belum di-set di UserProfile
         return getattr(self.qc, "laboratory", None)
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # setelah LabTest tersimpan, hitung ulang risiko farm & batch
+        from farms.utils import recalculate_farm_risk
+        from batches.utils import recalculate_batch_risk
+
+        farm = self.batch.farm
+        recalculate_farm_risk(farm)
+        recalculate_batch_risk(self.batch)
