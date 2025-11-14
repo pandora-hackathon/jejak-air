@@ -241,14 +241,12 @@ class Command(BaseCommand):
                 qc_profile = UserProfile.objects.get(user__username=qc_username)
 
                 nilai_cs137 = parse_float(row["nilai_cs137"])
-                batas_aman_cs137 = parse_float(row["batas_aman_cs137"])
 
                 lab_test, created = LabTest.objects.update_or_create(
                     batch=batch,
                     defaults={
                         "qc": qc_profile,
                         "nilai_cs137": nilai_cs137,
-                        "batas_aman_cs137": batas_aman_cs137,
                         "kesimpulan": row["kesimpulan"].strip(),
                         "tanggal_uji": row["tanggal_uji"].strip(),
                     },
