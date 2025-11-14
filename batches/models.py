@@ -56,7 +56,51 @@ class HarvestBatch(models.Model):
         if self.risk_score < 70:
             return "LAYAK_KIRIM"
         return "DITAHAN"
+    
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding # True kalau ini pertama kali disimpan
+        super().save(*args, **kwargs)
 
+        if is_new:
+            farm = self.farm
+            pelaku = farm.name
+
+            owner_profile = getattr(farm, "owner", None) # ini UserProfile atau None
+            if owner_profile is not None:
+                user = getattr(owner_profile, "user", None)
+                if user is not None:
+                    pelaku = user.get_full_name() or user.username
+
+            # PENEBARAN (kalau tanggal_tebar ada)
+            if self.tanggal_tebar:
+                Activity.objects.create(
+                    batch=self,
+                    tanggal=self.tanggal_tebar,
+                    jenis="PENEBARAN",
+                    lokasi=farm.location,
+                    pelaku=pelaku,
+                    keterangan="Penebaran benur awal siklus",
+                )
+
+            # PANEN
+            Activity.objects.create(
+                batch=self,
+                tanggal=self.tanggal_panen,
+                jenis="PANEN",
+                lokasi=farm.location,
+                pelaku=pelaku,
+                keterangan="Panen utama",
+            )
+
+            # DARI_TAMBAK
+            Activity.objects.create(
+                batch=self,
+                tanggal=self.created_at.date() if self.created_at else timezone.now().date(),
+                jenis="DARI_TAMBAK",
+                lokasi=farm.location,
+                pelaku=pelaku,
+                keterangan="Batch didaftarkan ke sistem oleh farm owner",
+            )
 
 class Activity(models.Model):
     ACTIVITY_CHOICES = [
@@ -90,46 +134,3 @@ class Activity(models.Model):
 
     def __str__(self):
         return f"{self.batch.kode_batch} - {self.get_jenis_display()} ({self.tanggal})"
-    
-    def save(self, *args, **kwargs):
-        is_new = self._state.adding  # True kalau ini pertama kali disimpan
-        super().save(*args, **kwargs)
-
-        if is_new:
-            farm = self.farm
-            # pakai nama owner kalau ada, kalau nggak fallback ke nama farm
-            if getattr(farm, "owner", None):
-                pelaku = farm.owner.get_full_name() or farm.owner.username
-            else:
-                pelaku = farm.name
-
-            # PENEBARAN (kalau tanggal_tebar ada)
-            if self.tanggal_tebar:
-                Activity.objects.create(
-                    batch=self,
-                    tanggal=self.tanggal_tebar,
-                    jenis="PENEBARAN",
-                    lokasi=farm.location,
-                    pelaku=pelaku,
-                    keterangan="Penebaran benur awal siklus",
-                )
-
-            # PANEN
-            Activity.objects.create(
-                batch=self,
-                tanggal=self.tanggal_panen,
-                jenis="PANEN",
-                lokasi=farm.location,
-                pelaku=pelaku,
-                keterangan="Panen utama",
-            )
-
-            # DARI_TAMBAK
-            Activity.objects.create(
-                batch=self,
-                tanggal=timezone.localdate(),
-                jenis="DARI_TAMBAK",
-                lokasi=farm.location,
-                pelaku=pelaku,
-                keterangan="Batch didaftarkan ke sistem oleh farm owner",
-            )
