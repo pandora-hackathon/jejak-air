@@ -1,6 +1,7 @@
-name,province
-Indramayu,Jawa Barat
-Pacitan,Jawa Timur
-Sidoarjo,Jawa Timur
-Jakarta,DKI Jakarta
-Surabaya,Jawa Timur
+code,name,province
+IDM,Indramayu,Jawa Barat
+PCT,Pacitan,Jawa Timur
+MKS,Makassar,Sulawesi Selatan
+JKT,Jakarta Utara,DKI Jakarta
+SBY,Surabaya,Jawa Timur
+BLI,Denpasar,Bali

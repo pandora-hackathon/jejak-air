@@ -1,5 +1,6 @@
-kode_batch,farm_name,commodity,tanggal_tebar,tanggal_panen,volume_kg,tujuan,quality_status,is_shipped
-IND-2024-001,Tambak Aman Jaya,Udang Vannamei,2024-01-10,2024-04-20,1200,Jepang,AMAN,TRUE
-IND-2024-002,Tambak Aman Jaya,Udang Windu,2024-03-01,2024-06-15,800,Uni Eropa,MASALAH,FALSE
-PAC-2024-001,Tambak Laut Biru,Bandeng,2024-02-05,2024-05-25,1500,Domestik,PENDING,FALSE
-SBY-2024-001,Tambak Delta Sidoarjo,Udang Vannamei,2024-02-15,2024-06-01,900,China,AMAN,FALSE
+farm_name,commodity,tanggal_tebar,tanggal_panen,volume_kg,tujuan,quality_status,is_shipped
+Tambak Udang Indramayu Sejahtera,UDANG,2025-06-01,2025-09-01,1000,Jepang,,false
+Tambak Udang Indramayu Sejahtera,UDANG,2025-06-15,2025-09-15,800,Jepang,,false
+Tambak Udang Indramayu Sejahtera,UDANG,2025-07-10,2025-10-10,1200,Jepang,,false
+Tambak Bandeng Pacitan Makmur,BANDENG,2025-05-20,2025-08-20,900,Singapura,,false
+Tambak Udang Makassar Jaya,UDANG,2025-07-05,2025-10-05,1100,Uni Eropa,,false

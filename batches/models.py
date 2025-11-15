@@ -1,5 +1,6 @@
 from datetime import timezone
 from django.db import models
+from batches.utils import generate_batch_code
 from farms.models import Farm
 
 # Create your models here.
@@ -12,10 +13,10 @@ class HarvestBatch(models.Model):
     ]
 
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name="batches")
-    kode_batch = models.CharField(max_length=50, unique=True)
+    kode_batch = models.CharField(max_length=50, unique=True, blank=True)
 
     commodity = models.ForeignKey(
-        "commodities.Commodity",
+        "Commodity",
         on_delete=models.PROTECT,
         related_name="batches",
     )
@@ -65,6 +66,14 @@ class HarvestBatch(models.Model):
     
     def save(self, *args, **kwargs):
         is_new = self._state.adding # True kalau ini pertama kali disimpan
+        
+        # Auto-generate kode_batch kalau belum diisi
+        if is_new and not self.kode_batch:
+            self.kode_batch = generate_batch_code(
+                self.farm,
+                self.tanggal_panen,
+            )
+
         super().save(*args, **kwargs)
 
         if is_new:
@@ -146,7 +155,7 @@ class Commodity(models.Model):
     name = models.CharField(max_length=100)              # "Udang Vaname"
     default_batas_aman_cs137 = models.FloatField(
         null=True, blank=True,
-        help_text="Limit aman Cs-137 (Bq/kg) untuk komoditas ini"
+        help_text="Batas aman Cs-137 (Bq/kg) untuk komoditas ini"
     )
 
     def __str__(self):
