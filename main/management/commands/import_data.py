@@ -230,7 +230,6 @@ class Command(BaseCommand):
                     tanggal_panen=tanggal_panen,
                     volume_kg=float(row["volume_kg"]),
                     tujuan=row["tujuan"].strip(),
-                    quality_status=row["quality_status"].strip() or "PENDING",
                     is_shipped=is_shipped,
                     # risk_score biarkan None, nanti dihitung setelah LabTest
                 )
@@ -276,7 +275,6 @@ class Command(BaseCommand):
                     defaults={
                         "qc": qc_profile,
                         "nilai_cs137": nilai_cs137,
-                        "kesimpulan": row["kesimpulan"].strip(),
                         "tanggal_uji": row["tanggal_uji"].strip(),
                     },
                 )

@@ -53,17 +53,24 @@ class LabTest(models.Model):
     def save(self, *args, **kwargs):
         is_new = self._state.adding
 
+        batas = self.batas_aman_cs137
+
+        if batas is not None and self.nilai_cs137 > batas:
+            self.kesimpulan = "BERMASALAH"
+        else:
+            # kalau batas None atau nilai <= batas → anggap masih AMAN
+            self.kesimpulan = "AMAN"
+
         super().save(*args, **kwargs)
 
         # setelah LabTest tersimpan, hitung ulang risiko farm & batch
         farm = self.batch.farm
-        recalculate_farm_risk(farm)
         recalculate_batch_risk(self.batch)
+        recalculate_farm_risk(farm)
 
         # buat activity UJI_LAB
         lokasi_lab = self.lab.nama if self.lab else "Laboratorium"
         pelaku_qc = self.qc.user.get_full_name() or self.qc.user.username
-
         batas = self.batas_aman_cs137
 
         Activity.objects.create(
