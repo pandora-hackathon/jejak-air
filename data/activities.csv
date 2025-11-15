@@ -1,3 +1,4 @@
-batch_kode,tanggal,jenis,lokasi,pelaku,keterangan
-IND-2024-001,2024-04-21,LAINNYA,Cold storage Indramayu,PT Indramayu Sejahtera,"Dipindahkan ke cold storage pra-ekspor"
-PAC-2024-001,2024-05-26,LAINNYA,Gudang Pacitan,PT Pacitan Makmur,"Pending pengecekan dokumen"
+batch_kode,jenis,tanggal,lokasi,pelaku,keterangan
+IDM-F0001-20250301-001,LAINNYA,2025-03-03,Pelabuhan Indramayu,PT Indramayu Sejahtera,Cold storage sebelum pengiriman
+PCT-F0002-20250220-001,LAINNYA,2025-02-22,Pelabuhan Pacitan,PT Pacitan Makmur,Transit di pelabuhan lokal
+MKS-F0003-20250405-001,LAINNYA,2025-04-06,Gudang Beku Makassar,PT Makassar Jaya,Disimpan sementara di gudang beku

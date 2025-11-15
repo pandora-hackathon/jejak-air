@@ -3,7 +3,7 @@ from batches.models import Activity, HarvestBatch
 from profiles.models import UserProfile
 from farms.models import City
 from farms.utils import recalculate_farm_risk
-from batches.utils import recalculate_batch_risk
+from batches.utils import recalculate_batch_risk, get_batas_aman_cs137
 
 # Create your models here.
 
@@ -44,16 +44,15 @@ class LabTest(models.Model):
         return getattr(self.qc, "laboratory", None)
     
     @property
-    def effective_batas_aman(self):
-        # 1) Kalau lab isi manual → pakai itu
-        if self.batas_aman_cs137 is not None:
-            return self.batas_aman_cs137
-
-        # 2) Kalau tidak, pakai default dari komoditas
-        commodity = self.batch.commodity
+    def batas_aman_cs137(self):
+        commodity = getattr(self.batch, "commodity", None)
+        if commodity is None:
+            return None
         return getattr(commodity, "default_batas_aman_cs137", None)
     
     def save(self, *args, **kwargs):
+        is_new = self._state.adding
+
         super().save(*args, **kwargs)
 
         # setelah LabTest tersimpan, hitung ulang risiko farm & batch
@@ -65,6 +64,8 @@ class LabTest(models.Model):
         lokasi_lab = self.lab.nama if self.lab else "Laboratorium"
         pelaku_qc = self.qc.user.get_full_name() or self.qc.user.username
 
+        batas = self.batas_aman_cs137
+
         Activity.objects.create(
             batch=self.batch,
             tanggal=self.tanggal_uji,
@@ -72,7 +73,7 @@ class LabTest(models.Model):
             lokasi=lokasi_lab,
             pelaku=pelaku_qc,
             keterangan=f"Uji Cs-137: {self.nilai_cs137} Bq/kg"
-            + (f" (batas {self.batas_aman_cs137} Bq/kg)" if self.batas_aman_cs137 else ""),
+            + (f" (batas {batas} Bq/kg)" if batas is not None else ""),
         )
 
         # Kalau risk_score PASS dan belum ada SIAP_EKSPOR, buat otomatis

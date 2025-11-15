@@ -1,6 +1,6 @@
 username,number_phone,laboratory_name
-admin1,081111111111,
-owner_aman,082222222222,
-owner_laut,083333333333,
-qc_jkt,081234567890,Lab Jakarta Utara
-qc_sby,089876543210,Lab Surabaya Timur
+admin,081200000001,
+owner_rani,081200000002,
+owner_budi,081200000003,
+qc_andi,081200000004,Lab Uji Radiasi Jakarta
+qc_budi,081200000005,Lab Uji Perikanan Surabaya

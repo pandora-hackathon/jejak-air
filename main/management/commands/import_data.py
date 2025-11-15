@@ -4,10 +4,11 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.utils.dateparse import parse_date
 
 from profiles.models import UserProfile
 from farms.models import City, Farm
-from batches.models import HarvestBatch, Activity
+from batches.models import HarvestBatch, Activity, Commodity
 from labs.models import Laboratory, LabTest
 
 User = get_user_model()
@@ -44,6 +45,7 @@ class Command(BaseCommand):
         self.load_laboratories(base_dir)
         self.load_users(base_dir)
         self.load_user_profiles(base_dir)
+        self.load_commodities(base_dir)
         self.load_farms(base_dir)
         self.load_batches(base_dir)
         self.load_activities(base_dir)
@@ -59,15 +61,20 @@ class Command(BaseCommand):
         with path.open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                city, created = City.objects.get_or_create(
-                    name=row["name"].strip(),
+                code = row["code"].strip()
+                name = row["name"].strip()
+                province = row["province"].strip()
+
+                city, created = City.objects.update_or_create(
+                    code=code,
                     defaults={
-                        "province": row["province"].strip(),
+                        "name": name,
+                        "province": province,
                     },
                 )
-                if not created:
-                    city.province = row["province"].strip()
-                    city.save(update_fields=["province"])
+                # if not created:
+                #     city.province = row["province"].strip()
+                #     city.save(update_fields=["province"])
 
     def load_laboratories(self, base_dir: Path):
         path = base_dir / "laboratories.csv"
@@ -145,6 +152,30 @@ class Command(BaseCommand):
                     profile.laboratory = laboratory
                     profile.save()
 
+    def load_commodities(self, base_dir: Path):
+        path = base_dir / "commodities.csv"
+        self.stdout.write(f"Import Commodity dari {path} ...")
+
+        if not path.exists():
+            self.stdout.write(self.style.WARNING("  → File commodities.csv tidak ditemukan, lewati."))
+            return
+
+        with path.open(newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                code = row["code"].strip()
+                name = row["name"].strip()
+                batas = parse_float(row.get("default_batas_aman_cs137"))
+
+                commodity, created = Commodity.objects.update_or_create(
+                    code=code,
+                    defaults={
+                        "name": name,
+                        "default_batas_aman_cs137": batas,
+                    },
+                )
+
+
     def load_farms(self, base_dir: Path):
         path = base_dir / "farms.csv"
         self.stdout.write(f"Import Farm dari {path} ...")
@@ -179,33 +210,31 @@ class Command(BaseCommand):
             reader = csv.DictReader(f)
             for row in reader:
                 farm = Farm.objects.get(name=row["farm_name"].strip())
-                kode_batch = row["kode_batch"].strip()
                 is_shipped = parse_bool(row["is_shipped"])
 
-                batch, created = HarvestBatch.objects.get_or_create(
-                    kode_batch=kode_batch,
-                    defaults={
-                        "farm": farm,
-                        "commodity": row["commodity"].strip(),
-                        "tanggal_tebar": row["tanggal_tebar"].strip() or None,
-                        "tanggal_panen": row["tanggal_panen"].strip(),
-                        "volume_kg": float(row["volume_kg"]),
-                        "tujuan": row["tujuan"].strip(),
-                        "quality_status": row["quality_status"].strip() or "PENDING",
-                        "is_shipped": is_shipped,
-                        # risk_score biarkan None
-                    },
+                # kolom 'commodity' di CSV berisi kode, misal 'UDANG', 'BANDENG'
+                commodity_code = row["commodity"].strip()
+                commodity = Commodity.objects.get(code=commodity_code)
+
+                tanggal_tebar_raw = (row.get("tanggal_tebar") or "").strip()
+                tanggal_panen_raw = row["tanggal_panen"].strip()
+
+                tanggal_tebar = parse_date(tanggal_tebar_raw) if tanggal_tebar_raw else None
+                tanggal_panen = parse_date(tanggal_panen_raw)
+
+                # TIDAK mengisi kode_batch → akan di-generate otomatis di HarvestBatch.save()
+                batch = HarvestBatch(
+                    farm=farm,
+                    commodity=commodity,
+                    tanggal_tebar=tanggal_tebar,
+                    tanggal_panen=tanggal_panen,
+                    volume_kg=float(row["volume_kg"]),
+                    tujuan=row["tujuan"].strip(),
+                    quality_status=row["quality_status"].strip() or "PENDING",
+                    is_shipped=is_shipped,
+                    # risk_score biarkan None, nanti dihitung setelah LabTest
                 )
-                if not created:
-                    batch.farm = farm
-                    batch.commodity = row["commodity"].strip()
-                    batch.tanggal_tebar = row["tanggal_tebar"].strip() or None
-                    batch.tanggal_panen = row["tanggal_panen"].strip()
-                    batch.volume_kg = float(row["volume_kg"])
-                    batch.tujuan = row["tujuan"].strip()
-                    batch.quality_status = row["quality_status"].strip() or "PENDING"
-                    batch.is_shipped = is_shipped
-                    batch.save()
+                batch.save()
 
     def load_activities(self, base_dir: Path):
         path = base_dir / "activities.csv"

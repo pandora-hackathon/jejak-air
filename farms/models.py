@@ -8,6 +8,12 @@ class City(models.Model):
     name = models.CharField(max_length=100)
     province = models.CharField(max_length=100)
 
+    code = models.CharField(
+        max_length=10,
+        unique=True,
+        help_text="Kode singkat kota, misal IDM untuk Indramayu"
+    )
+
     def __str__(self):
         return self.name
 
