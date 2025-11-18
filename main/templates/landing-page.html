@@ -1,5 +1,122 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Jejak Air - Lacak Jejak Komoditas{% endblock %}
 
 {% block content %}
-<h1>Welcome to the landing page</h1>
+<section class="bg-[#033145] text-white">
+  <div class="max-w-6xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-10 items-center">
+    <!-- Kiri: teks -->
+    <div class="space-y-6">
+      <span class="inline-flex items-center px-4 py-1 rounded-full border border-[#D94D28]/60 text-[11px] tracking-[0.18em] uppercase text-[#F9FAFB]/90">
+        Sistem Traceability Terpercaya
+      </span>
+
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">
+        Lacak Jejak Komoditas Perikanan dari Tambak hingga Ekspor
+      </h1>
+
+      <p class="text-sm md:text-base text-[#E5EEF5] max-w-md">
+        Jejak Air adalah sistem terintegrasi untuk pencatatan batch, integrasi lab,
+        dan early warning system yang membantu menjaga kualitas dan keamanan produk perikanan Anda.
+      </p>
+
+      <!-- Metrics -->
+      <div class="flex flex-wrap gap-8 pt-4 text-sm">
+        <div>
+          <p class="text-2xl font-semibold">100%</p>
+          <p class="text-[#AEC7D7]">Transparansi</p>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold">Real-time</p>
+          <p class="text-[#AEC7D7]">Monitoring</p>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold">0–100</p>
+          <p class="text-[#AEC7D7]">Risk Score</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kanan: gambar + cards -->
+    <div class="relative">
+      <div class="rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        <img src="{% static 'image/shrimp.jpg' %}" alt="Shrimp" class="w-full h-full object-cover">
+      </div>
+
+      <!-- Card Scan QR -->
+      <div class="absolute -top-4 right-4 bg-white rounded-2xl shadow-lg px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-[#D94D28] flex items-center justify-center text-white text-xs font-semibold">
+          QR
+        </div>
+        <div class="text-xs">
+          <p class="text-[#6A7282] leading-tight">Scan QR</p>
+          <p class="font-semibold text-[#033145] leading-tight">Cek Batch</p>
+        </div>
+      </div>
+
+      <!-- Card Risk Score -->
+      <div class="absolute -bottom-4 left-6 bg-white rounded-2xl shadow-lg px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-[#287293] flex items-center justify-center text-white text-xs font-semibold">
+          ↗
+        </div>
+        <div class="text-xs">
+          <p class="text-[#6A7282] leading-tight">Risk Score</p>
+          <p class="font-semibold text-emerald-600 leading-tight">Low Risk</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION CEK BATCH (full width dalam container) -->
+<section id="cek-batch" class="bg-[#033145] pb-20">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-white rounded-3xl shadow-lg px-10 py-7 w-full border border-[#287293]/40">
+      <h2 class="text-base font-semibold text-[#033145]">
+        Coba Cek Batch Sekarang
+      </h2>
+
+      <form method="get"
+            action="{% url 'main:landing' %}"
+            class="mt-4 flex items-center gap-3">
+        <div class="flex-1 flex items-center bg-[#F9FAFB] rounded-full px-4 py-2 border border-slate-200">
+          <input
+            type="text"
+            name="kode_batch"
+            class="w-full bg-transparent text-sm text-[#033145] placeholder:text-[#6A7282] focus:outline-none"
+            placeholder="Masukkan kode batch (contoh: BATCH-2024-001)"
+            value="{{ kode_batch|default_if_none:'' }}"
+            required
+          >
+        </div>
+        <button type="submit"
+                class="shrink-0 w-11 h-11 rounded-full bg-[#287293] text-white flex items-center justify-center hover:opacity-90 transition"
+                aria-label="Cari batch">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+          </svg>
+        </button>
+      </form>
+
+      {% if search_error %}
+        <p class="mt-2 text-xs text-red-600">
+          {{ search_error }}
+        </p>
+      {% endif %}
+
+      <div class="mt-4 text-center text-xs text-[#6A7282]">
+        atau
+      </div>
+
+      <button type="button"
+              class="mt-3 w-full rounded-full border border-[#D94D28] text-[#D94D28] py-2.5 text-sm font-medium flex items-center justify-center gap-2">
+        <span class="text-xs">▢▢</span>
+        <span>Scan QR Code</span>
+      </button>
+    </div>
+  </div>
+</section>
 {% endblock %}
