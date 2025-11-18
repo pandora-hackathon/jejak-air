@@ -1,3 +1,4 @@
+from pyexpat.errors import messages
 from django.shortcuts import redirect, render
 
 
@@ -8,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from batches.models import HarvestBatch # Asumsi model Batch ada di app 'batches'
 from labs.models import LabTest # Asumsi model LabTest ada di app 'labs'
 from profiles.models import UserProfile # Asumsi model UserProfile ada di app 'profiles'
+from django.core.exceptions import ObjectDoesNotExist
 
 def home(request):
     return render(request, "landing-page.html")
@@ -43,3 +45,31 @@ def dashboard_qc(request):
         'user_profile': user_profile,
     }
     return render(request, 'dashboard_qc.html', context)
+
+@login_required
+def dashboard_switcher(request):
+    user = request.user
+    
+    try:
+        # Cek apakah objek UserProfile ada. 
+        # Jika relasi di model UserProfile diberi nama 'profile', maka aksesnya adalah user.profile
+        # Jika tidak, aksesnya adalah user.userprofile (DEFAULT)
+        user_profile = user.userprofile 
+        
+    except (AttributeError, ObjectDoesNotExist):
+        # Tangani kasus jika userprofile tidak ada
+        messages.error(request, "Profil pengguna tidak ditemukan. Silakan hubungi admin.")
+        # Lakukan redirect ke home (atau view login/profile setup)
+        return redirect('home') 
+
+    role = user_profile.role # Akses role setelah yakin user_profile ada
+    
+    if role == 'labAssistant':
+        return redirect('main:dashboard_qc')
+    elif role == 'farmOwner':
+        return redirect('main:dashboard_owner')
+    elif role == 'admin':
+        return redirect('main:dashboard_admin')
+    else:
+        messages.warning(request, "Role pengguna tidak dikenal.")
+        return redirect('home')
