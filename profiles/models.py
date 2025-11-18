@@ -16,6 +16,8 @@ class UserProfile(models.Model):
     picture = models.ImageField(upload_to='profile-picture/', null=True, blank=True)
     number_phone = models.CharField(max_length=15, null=True, blank=True)
 
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+
     laboratory = models.ForeignKey(
         'labs.Laboratory',
         on_delete=models.SET_NULL,

@@ -1,6 +1,6 @@
 # batches/forms.py
 from django import forms
-from .models import HarvestBatch
+from .models import HarvestBatch, Activity
 from farms.models import Farm
 
 
@@ -31,3 +31,11 @@ class HarvestBatchForm(forms.ModelForm):
         if user is not None and hasattr(user, "profile"):
             # hanya farm yang owner-nya = user ini
             self.fields["farm"].queryset = Farm.objects.filter(owner=user.profile)
+
+class ActivityManualForm(forms.ModelForm):
+    class Meta:
+        model = Activity
+        fields = ["tanggal", "lokasi", "pelaku", "keterangan"]
+        widgets = {
+            "tanggal": forms.DateInput(attrs={"type": "date"}),
+        }

@@ -1,25 +1,21 @@
+# batches/views.py
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
-from .models import HarvestBatch
-from .forms import HarvestBatchForm
+from .models import HarvestBatch, Activity
+from .forms import HarvestBatchForm  # tambahin ActivityManualForm nanti
 
 
 def _require_farm_owner(request):
-    """
-    Pastikan user adalah farmOwner dan punya UserProfile.
-    Return: UserProfile owner.
-    """
     user = request.user
     if not user.is_authenticated:
         raise PermissionDenied("Silakan login terlebih dahulu.")
 
-    # role diambil dari custom User (authentication.User)
     if getattr(user, "role", None) != "farmOwner":
         raise PermissionDenied("Hanya pemilik tambak yang boleh mengelola batch.")
 
-    # pastikan punya profil
     profile = getattr(user, "profile", None)
     if profile is None:
         raise PermissionDenied("Profil pengguna belum lengkap. Silakan lengkapi data diri.")
@@ -28,20 +24,14 @@ def _require_farm_owner(request):
 
 
 def _check_batch_owner(request, batch: HarvestBatch):
-    """
-    Raise PermissionDenied kalau user sekarang bukan owner farm dari batch ini.
-    """
     profile = _require_farm_owner(request)
     if batch.farm.owner_id != profile.id:
         raise PermissionDenied("Anda tidak berhak mengubah batch dari tambak lain.")
     return profile
 
 
-@login_required
+# @login_required
 def batch_list(request):
-    """
-    List batch HANYA untuk farm yang dimiliki user (farmOwner).
-    """
     profile = _require_farm_owner(request)
 
     batches = (
@@ -50,58 +40,51 @@ def batch_list(request):
         .filter(farm__owner=profile)
     )
 
-    context = {
-        "batches": batches,
-    }
-    return render(request, "batches/batch_list.html", context)
+    return render(request, "batch_list.html", {"batches": batches})
 
 
-@login_required
+# @login_required
 def batch_detail(request, pk):
     """
-    Detail 1 batch, hanya bisa diakses owner farm-nya.
+    Detail 1 batch + daftar activity (timeline)
+    pk di sini adalah kode_batch (CharField primary_key=True).
     """
-    batch = get_object_or_404(HarvestBatch, pk=pk)
-    _check_batch_owner(request, batch)
+    batch = get_object_or_404(
+        HarvestBatch.objects
+        .select_related("farm", "commodity")
+        .prefetch_related("activities"),
+        pk=pk,
+    )
+    # _check_batch_owner(request, batch)
+
+    activities = batch.activities.all()
+    has_received_activity = activities.filter(jenis="DITERIMA").exists()
 
     context = {
         "batch": batch,
+        "activities": activities,
+        "has_received_activity": has_received_activity,
     }
-    return render(request, "batches/batch_detail.html", context)
+    return render(request, "batch_detail.html", context)
 
 
-@login_required
+# @login_required
 def batch_create(request):
-    """
-    Buat batch baru.
-    - Hanya farmOwner.
-    - Pilihan farm di form otomatis terfilter ke farm milik user.
-    - kode_batch + Activity PENEBARAN / PANEN / DARI_TAMBAK
-      dibuat otomatis di model.save().
-    """
     _require_farm_owner(request)
 
     if request.method == "POST":
         form = HarvestBatchForm(request.POST, user=request.user)
         if form.is_valid():
-            batch = form.save()  # ini akan memicu save() di model
+            batch = form.save()
             return redirect("batches:batch_detail", pk=batch.pk)
     else:
         form = HarvestBatchForm(user=request.user)
 
-    context = {
-        "form": form,
-        "mode": "create",
-    }
-    return render(request, "batches/batch_form.html", context)
+    return render(request, "batch_form.html", {"form": form, "mode": "create"})
 
 
-@login_required
+# @login_required
 def batch_update(request, pk):
-    """
-    Edit batch.
-    - Hanya boleh oleh owner farm batch tersebut.
-    """
     batch = get_object_or_404(HarvestBatch, pk=pk)
     _check_batch_owner(request, batch)
 
@@ -113,21 +96,12 @@ def batch_update(request, pk):
     else:
         form = HarvestBatchForm(instance=batch, user=request.user)
 
-    context = {
-        "form": form,
-        "mode": "update",
-        "batch": batch,
-    }
-    return render(request, "batches/batch_form.html", context)
+    context = {"form": form, "mode": "update", "batch": batch}
+    return render(request, "batch_form.html", context)
 
 
-@login_required
+# @login_required
 def batch_delete(request, pk):
-    """
-    Hapus batch.
-    - Hanya boleh oleh owner farm batch tersebut.
-    - Activity otomatis ikut kehapus (on_delete=CASCADE).
-    """
     batch = get_object_or_404(HarvestBatch, pk=pk)
     _check_batch_owner(request, batch)
 
@@ -135,7 +109,95 @@ def batch_delete(request, pk):
         batch.delete()
         return redirect("batches:batch_list")
 
-    context = {
-        "batch": batch,
-    }
-    return render(request, "batches/batch_confirm_delete.html", context)
+    return render(request, "batch_confirm_delete.html", {"batch": batch})
+
+def _get_pelaku_from_farm(farm):
+    pelaku = farm.name
+    owner_profile = getattr(farm, "owner", None)
+    if owner_profile is not None:
+        user = getattr(owner_profile, "user", None)
+        if user is not None:
+            pelaku = user.get_full_name() or user.username
+    return pelaku
+
+
+# @login_required
+def batch_mark_shipped(request, pk):
+    """
+    Dipanggil saat tombol 'Kirim' diklik.
+    Hanya boleh kalau shipment_status == 'LAYAK_KIRIM'.
+    Akan set is_shipped=True dan tambahkan activity DIEKSPOR.
+    """
+    batch = get_object_or_404(HarvestBatch, pk=pk)
+    _check_batch_owner(request, batch)
+
+    if request.method == "POST" and batch.shipment_status == "LAYAK_KIRIM":
+        batch.is_shipped = True
+        batch.save()
+
+        farm = batch.farm
+        pelaku = _get_pelaku_from_farm(farm)
+
+        Activity.objects.create(
+            batch=batch,
+            tanggal=timezone.now().date(),
+            jenis="DIEKSPOR",
+            lokasi=farm.location,
+            pelaku=pelaku,
+            keterangan="Batch dikirim untuk ekspor.",
+        )
+
+    return redirect("batches:batch_detail", pk=batch.pk)
+
+
+# @login_required
+def batch_mark_received(request, pk):
+    """
+    Dipanggil saat tombol 'Diterima' diklik.
+    Menambahkan activity DITERIMA satu kali saja.
+    """
+    batch = get_object_or_404(HarvestBatch, pk=pk)
+    _check_batch_owner(request, batch)
+
+    if request.method == "POST":
+        already = batch.activities.filter(jenis="DITERIMA").exists()
+        if not already:
+            farm = batch.farm
+            pelaku = _get_pelaku_from_farm(farm)
+
+            Activity.objects.create(
+                batch=batch,
+                tanggal=timezone.now().date(),
+                jenis="DITERIMA",
+                lokasi=batch.tujuan,
+                pelaku=pelaku,
+                keterangan="Batch diterima oleh pihak tujuan.",
+            )
+
+    return redirect("batches:batch_detail", pk=batch.pk)
+
+
+from .forms import ActivityManualForm 
+
+
+# @login_required
+def activity_manual_create(request, pk):
+    """
+    Tambah activity dengan jenis LAINNYA untuk batch tertentu.
+    """
+    batch = get_object_or_404(HarvestBatch, pk=pk)
+    _check_batch_owner(request, batch)
+
+    if request.method == "POST":
+        form = ActivityManualForm(request.POST)
+        if form.is_valid():
+            activity = form.save(commit=False)
+            activity.batch = batch
+            activity.jenis = "LAINNYA"
+            activity.save()
+            return redirect("batches:batch_detail", pk=batch.pk)
+    else:
+        form = ActivityManualForm()
+
+    context = {"batch": batch, "form": form}
+    return render(request, "batches/activity_manual_form.html", context)
