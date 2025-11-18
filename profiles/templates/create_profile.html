@@ -1,21 +1,21 @@
-<!-- melengkapi profile setelah registrasi -->
 {% extends "base.html" %}
 {% load static %}
 
 {% block content %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
 <div class="w-[1164px] h-[987px] relative bg-gradient-to-br from-blue-50 to-gray-50">
     <div class="w-[1164.44px] h-16 px-40 pb-[0.74px] left-0 top-0 absolute bg-white shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.10)] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.10)] border-b-[0.74px] border-black/10 inline-flex flex-col justify-start items-start">
         <div class="self-stretch h-16 inline-flex justify-start items-center gap-4">
             <div class="w-24 h-8 relative rounded-lg">
                 <div class="w-4 h-4 left-[9.99px] top-[8px] absolute overflow-hidden">
-                    <div class="w-1 h-2.5 left-[3.33px] top-[3.33px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-neutral-950"></div>
-                    <div class="w-2.5 h-0 left-[3.33px] top-[8px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-neutral-950"></div>
                 </div>
                 <div class="left-[39.98px] top-[4.74px] absolute justify-start text-neutral-950 text-sm font-normal font-['Arial'] leading-5">Kembali</div>
             </div>
             <div class="w-96 h-12 relative">
                 <div class="w-96 h-8 left-0 top-0 absolute inline-flex justify-start items-start">
-                    <div class="flex-1 justify-start text-cyan-950 text-2xl font-normal font-['Arial'] leading-8">Lengakapi data diri</div>
+                    <div class="flex-1 justify-start text-cyan-950 text-2xl font-normal font-['Arial'] leading-8">Lengkapi data diri</div>
                 </div>
                 <div class="w-96 h-5 left-0 top-[32px] absolute">
                     <div class="left-0 top-[-1.26px] absolute justify-start text-gray-500 text-sm font-normal font-['Arial'] leading-5">lengkapi data diri</div>
@@ -23,96 +23,92 @@
             </div>
         </div>
     </div>
+
     <div class="w-[832px] h-[1070px] left-[166px] top-[96.50px] absolute">
-        <div class="w-[832.01px] h-80 pl-8 pt-8 left-0 top-0 absolute bg-white rounded-2xl shadow-[0px_4px_6px_-4px_rgba(0,0,0,0.10)] shadow-lg outline outline-[1.48px] outline-offset-[-1.48px] outline-cyan-700 inline-flex flex-col justify-start items-start">
+
+        <!-- PROFILE PICTURE -->
+        <div class="w-[832.01px] h-80 pl-8 pt-8 left-0 top-0 absolute bg-white rounded-2xl shadow-lg outline outline-[1.48px] outline-offset-[-1.48px] outline-cyan-700 inline-flex flex-col justify-start items-start">
             <div class="w-[765.07px] h-64 flex flex-col justify-start items-start gap-2">
                 <div class="self-stretch h-7 inline-flex justify-start items-start">
                     <div class="flex-1 text-center justify-start text-cyan-950 text-xl font-normal font-['Arial'] leading-7">Foto Profile</div>
                 </div>
                 <div class="self-stretch h-5 relative">
-                    <div class="left-[266.67px] top-[-1.26px] absolute text-center justify-start text-gray-500 text-sm font-normal font-['Arial'] leading-5">Upload foto profile Anda (Maks. 5MB)</div>
-                </div>
-                <div class="self-stretch h-44 relative">
-                    <div class="w-80 h-9 left-[222.53px] top-[143.99px] absolute bg-white rounded-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-cyan-700">
-                        <div class="w-4 h-4 left-[104.78px] top-[10px] absolute overflow-hidden">
-                            <div class="w-0 h-2 left-[8px] top-[2px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-700"></div>
-                            <div class="w-1.5 h-[3.33px] left-[4.67px] top-[2px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-700"></div>
-                            <div class="w-3 h-1 left-[2px] top-[10px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-700"></div>
-                        </div>
-                        <div class="left-[136.77px] top-[6.74px] absolute justify-start text-cyan-700 text-sm font-normal font-['Arial'] leading-5">Upload Foto</div>
+                    <div class="left-[266.67px] top-[-1.26px] absolute text-center justify-start text-gray-500 text-sm font-normal font-['Arial'] leading-5">
+                        Upload foto profile Anda (Maks. 5MB)
                     </div>
+                </div>
+
+                <div class="self-stretch h-44 relative">
+
+                    <!-- Button Upload -->
+                    <div class="w-80 h-9 left-[222.53px] top-[143.99px] absolute">
+                        {{ form.picture }}
+                    </div>
+
+                    <!-- Preview Circle -->
                     <div class="w-32 h-32 left-[318.53px] top-0 absolute rounded-full outline outline-4 outline-offset-[-3.70px] outline-cyan-700 inline-flex justify-start items-start overflow-hidden">
                         <div class="w-32 h-32 bg-cyan-700/10 rounded-full flex justify-center items-center">
-                            <div class="text-center justify-start text-cyan-700 text-3xl font-normal font-['Arial'] leading-9">?</div>
+                            {% if form.instance.picture %}
+                                <img src="{{ form.instance.picture.url }}" class="w-32 h-32 object-cover rounded-full">
+                            {% else %}
+                                <div class="text-center justify-start text-cyan-700 text-3xl font-normal font-['Arial'] leading-9">?</div>
+                            {% endif %}
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
-        <div class="w-[832.01px] h-80 left-0 top-[342.92px] absolute bg-white rounded-2xl shadow-[0px_4px_6px_-4px_rgba(0,0,0,0.10)] shadow-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-black/10 inline-flex flex-col justify-start items-start">
+
+        <!-- INFORMASI PRIBADI -->
+        <div class="w-[832.01px] h-80 left-0 top-[342.92px] absolute bg-white rounded-2xl shadow-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-black/10 inline-flex flex-col justify-start items-start">
             <div class="w-[830.53px] h-80 px-6 pt-6 flex flex-col justify-start items-start gap-4">
+
                 <div class="self-stretch h-7 inline-flex justify-start items-center gap-2">
-                    <div class="w-5 h-5 relative overflow-hidden">
-                        <div class="w-3 h-[5px] left-[4.16px] top-[12.49px] absolute outline outline-[1.67px] outline-offset-[-0.83px] outline-cyan-700"></div>
-                        <div class="w-1.5 h-1.5 left-[6.66px] top-[2.50px] absolute outline outline-[1.67px] outline-offset-[-0.83px] outline-cyan-700"></div>
+                    <div class="justify-start text-cyan-950 text-xl font-normal font-['Arial'] leading-7">Informasi Pribadi</div>
+                </div>
+
+                <div class="self-stretch h-px bg-black/10"></div>
+
+                <!-- FULL NAME -->
+                <div class="self-stretch h-20 flex flex-col gap-2">
+                    <div class="self-stretch h-6 relative">
+                        <div class="left-0 top-[-1.52px] absolute text-neutral-950 text-base font-normal leading-6">Nama Lengkap</div>
+                        <div class="w-1.5 h-6 left-[117.19px] top-0 absolute text-red-500">*</div>
                     </div>
-                    <div class="w-40 h-7 flex justify-start items-start">
-                        <div class="justify-start text-cyan-950 text-xl font-normal font-['Arial'] leading-7">Informasi Pribadi</div>
+                    <div class="self-stretch h-12">
+                        {{ form.full_name }}
                     </div>
                 </div>
-                <div class="self-stretch h-px relative bg-black/10"></div>
-                <div class="self-stretch h-48 flex flex-col justify-start items-start gap-4">
-                    <div class="self-stretch h-20 flex flex-col justify-start items-start gap-2">
-                        <div class="self-stretch h-6 relative">
-                            <div class="left-0 top-[-1.52px] absolute justify-start text-neutral-950 text-base font-normal font-['Arial'] leading-6">Nama Lengkap</div>
-                            <div class="w-1.5 h-6 left-[117.19px] top-0 absolute">
-                                <div class="left-0 top-[-1.52px] absolute justify-start text-red-500 text-base font-normal font-['Arial'] leading-6">*</div>
-                            </div>
-                        </div>
-                        <div class="self-stretch h-12 px-3 py-1 bg-zinc-100 rounded-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-black/0 inline-flex justify-start items-center overflow-hidden">
-                            <div class="justify-start text-gray-500 text-sm font-normal font-['Arial']">e.g., Dr. Budi Santoso</div>
-                        </div>
+
+                <!-- PHONE NUMBER -->
+                <div class="self-stretch h-24 flex flex-col gap-2">
+                    <div class="self-stretch h-6 relative">
+                        <div class="left-0 top-[-1.52px] absolute text-neutral-950 text-base font-normal leading-6">Nomor HP</div>
+                        <div class="w-1.5 h-6 left-[84.97px] top-0 absolute text-red-500">*</div>
                     </div>
-                    <div class="self-stretch h-24 flex flex-col justify-start items-start gap-2">
-                        <div class="self-stretch h-6 relative">
-                            <div class="left-0 top-[-1.52px] absolute justify-start text-neutral-950 text-base font-normal font-['Arial'] leading-6">Nomor HP</div>
-                            <div class="w-1.5 h-6 left-[84.97px] top-0 absolute">
-                                <div class="left-0 top-[-1.52px] absolute justify-start text-red-500 text-base font-normal font-['Arial'] leading-6">*</div>
-                            </div>
-                        </div>
-                        <div class="self-stretch h-12 relative">
-                            <div class="w-[782.55px] h-12 pl-12 pr-3 py-1 left-0 top-0 absolute bg-zinc-100 rounded-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-black/0 inline-flex justify-start items-center overflow-hidden">
-                                <div class="justify-start text-gray-500 text-sm font-normal font-['Arial']">e.g., +62 812-3456-7890</div>
-                            </div>
-                            <div class="w-5 h-5 left-[11.99px] top-[14px] absolute overflow-hidden">
-                                <div class="w-4 h-4 left-[1.67px] top-[1.67px] absolute outline outline-[1.67px] outline-offset-[-0.83px] outline-gray-400"></div>
-                            </div>
-                        </div>
-                        <div class="self-stretch h-4 inline-flex justify-start items-start">
-                            <div class="flex-1 justify-start text-gray-500 text-xs font-normal font-['Arial'] leading-4">Format: +62xxx atau 08xxx</div>
-                        </div>
+                    <div class="self-stretch h-12">
+                        {{ form.number_phone }}
                     </div>
+                    <div class="self-stretch h-4 text-gray-500 text-xs">Format: +62xxx atau 08xxx</div>
                 </div>
+
             </div>
         </div>
+
+        <!-- BUTTONS -->
         <div class="w-[832.01px] h-14 left-[8.49px] top-[756.50px] absolute inline-flex justify-start items-start gap-4">
-            <div class="w-24 h-10 px-8 bg-white rounded-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-black/10 flex justify-center items-center gap-2">
-                <div class="justify-start text-neutral-950 text-sm font-normal font-['Arial'] leading-5">Batal</div>
-            </div>
-            <div class="flex-1 h-14 relative bg-cyan-700 rounded-lg">
-                <div class="w-4 h-4 left-[277.43px] top-[20px] absolute overflow-hidden">
-                    <div class="w-3.5 h-3.5 left-[1.33px] top-[1.33px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-white"></div>
-                    <div class="w-2 h-1.5 left-[6px] top-[2.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-white"></div>
-                </div>
-                <div class="left-[309.42px] top-[12.49px] absolute justify-start text-white text-lg font-normal font-['Arial'] leading-7">Daftar Sekarang</div>
-            </div>
+            <a href="/" class="w-24 h-10 px-8 bg-white rounded-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-black/10 flex justify-center items-center">
+                <div class="text-neutral-950 text-sm font-normal">Batal</div>
+            </a>
+
+            <button type="submit" class="flex-1 h-14 bg-cyan-700 rounded-lg relative text-white text-lg">
+                <div class="absolute left-[309.42px] top-[12.49px]">Daftar Sekarang</div>
+            </button>
         </div>
-        <div class="w-[832.01px] h-6 left-[-6.52px] top-[836.49px] absolute">
-            <div class="w-36 left-[301.13px] top-[-1.52px] absolute text-center justify-start text-gray-600 text-base font-normal font-['Arial'] leading-6">Sudah punya akun?</div>
-            <div class="w-20 h-6 left-[443.17px] top-0 absolute">
-                <div class="left-0 top-[-1.52px] absolute justify-start text-cyan-700 text-base font-normal font-['Arial'] underline leading-6">Login di sini</div>
-            </div>
-        </div>
+
     </div>
 </div>
+
+</form>
 {% endblock content %}
