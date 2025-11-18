@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Tambah Tambak Baru</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="bg-gray-50 w-full min-h-screen">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Back Navigation -->
+    <div class="mb-6 flex items-center gap-2">
+      <a href="{% url 'main:home' %}" 
+         class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+        ← Kembali
+      </a>
+    </div>
+
+    <!-- PAGE TITLE -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Tambah Tambak Baru</h1>
+      <p class="text-gray-600">Lengkapi data berikut untuk mendaftarkan tambak</p>
+    </div>
+
+    <form method="POST" class="space-y-10">
+      {% csrf_token %}
+
+      <!-- Informasi Kota -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-blue-500 text-2xl">🏙️</span> Informasi Kota
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+          <!-- Nama Kota -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nama Kota <span class="text-red-500">*</span>
+            </label>
+            {{ city_form.name }}
+            <p class="text-sm text-gray-400 mt-1">e.g., Indramayu</p>
+            {% for error in city_form.name.errors %}
+              <p class="text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <!-- Provinsi -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Provinsi <span class="text-red-500">*</span>
+            </label>
+            {{ city_form.province }}
+            <p class="text-sm text-gray-400 mt-1">e.g., Jawa Barat</p>
+            {% for error in city_form.province.errors %}
+              <p class="text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <!-- Kode Kota -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Kode Kota <span class="text-red-500">*</span>
+            </label>
+            {{ city_form.code }}
+            <p class="text-sm text-gray-400 mt-1">e.g., IDM</p>
+            {% for error in city_form.code.errors %}
+              <p class="text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Informasi Tambak -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-green-500 text-2xl">🐟</span> Informasi Tambak
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+          <!-- Nama Tambak -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nama Tambak <span class="text-red-500">*</span>
+            </label>
+            {{ farm_form.name }}
+            <p class="text-sm text-gray-400 mt-1">e.g., Tambak Jaya Abadi</p>
+            {% for error in farm_form.name.errors %}
+              <p class="text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+        </div>
+
+        <!-- Lokasi -->
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Alamat Lengkap
+          </label>
+          {{ farm_form.location }}
+          <p class="text-sm text-gray-400 mt-1">e.g., Desa Sido Rahayu, Dusun 3</p>
+          {% for error in farm_form.location.errors %}
+            <p class="text-sm text-red-600">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <!-- Skor Risiko -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-yellow-500 text-2xl">⚠️</span> Skor Risiko Tambak
+        </h2>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Risk Score (0 - 100)
+          </label>
+          {{ farm_form.risk_score }}
+          {% for error in farm_form.risk_score.errors %}
+            <p class="text-sm text-red-600">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 pt-4">
+        <a href="{% url 'main:home' %}"
+          class="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-center">
+          Batal
+        </a>
+
+        <button type="submit"
+          class="order-1 sm:order-2 flex-1 bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors">
+          Simpan Tambak
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
