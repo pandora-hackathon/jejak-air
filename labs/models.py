@@ -28,14 +28,15 @@ class LabTest(models.Model):
     qc = models.ForeignKey(
         UserProfile,
         on_delete=models.PROTECT,
-        limit_choices_to={"user__role": "labAssistant"}, # hanya QC/labAssistant yang bisa input
+        limit_choices_to={"user__role": "labAssistant"},
     )
 
     lab = models.ForeignKey(
         'Laboratory',
         on_delete=models.PROTECT,
-        null=True,
-        blank=True
+        null=True, 
+        blank=True,
+        related_name='lab_tests'
     )
 
     class Meta:
@@ -44,12 +45,6 @@ class LabTest(models.Model):
     def __str__(self):
         return f"{self.batch.kode_batch} ({self.kesimpulan})"
 
-    @property
-    def lab(self):
-        """Mengambil lab dari UserProfile QC."""
-        # Menghindari error jika laboratory belum di-set di UserProfile
-        return getattr(self.qc, "laboratory", None)
-    
     @property
     def batas_aman_cs137(self):
         commodity = getattr(self.batch, "commodity", None)
