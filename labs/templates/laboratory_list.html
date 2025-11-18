@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Laboratorium{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Daftar Laboratorium</h2>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <a href="{% url 'labs:laboratory_create' %}" class="btn btn-primary">➕ Tambah Laboratorium Baru</a>
+        
+        <br><br>
+
+        {% if laboratories %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Laboratorium</th>
+                        <th>Kota</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lab in laboratories %}
+                        <tr>
+                            <td>{{ lab.pk }}</td>
+                            <td>{{ lab.nama }}</td>
+                            <td>{{ lab.city.nama }}</td>
+                            <td>
+                                <a href="{% url 'labs:laboratory_detail' pk=lab.pk %}" class="btn btn-sm btn-info">Detail</a>
+                                <a href="{% url 'labs:laboratory_delete' pk=lab.pk %}" class="btn btn-sm btn-danger">Hapus</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Belum ada data laboratorium yang terdaftar.</p>
+        {% endif %}
+    </div>
+{% endblock %}
