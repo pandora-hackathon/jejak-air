@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>{{ title }}</h2>
+        
+        <div class="alert alert-info">
+            Anda sedang menambahkan hasil uji lab untuk Batch: <strong>{{ batch.kode_batch }}</strong> (Panen: {{ batch.tanggal_panen|date:"d M Y" }}).
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.nilai_cs137.label_tag }}
+            {{ form.nilai_cs137 }}
+            {% if form.nilai_cs137.errors %}<p class="error">{{ form.nilai_cs137.errors }}</p>{% endif %}
+
+            {{ form.tanggal_uji.label_tag }}
+            {{ form.tanggal_uji }}
+            {% if form.tanggal_uji.errors %}<p class="error">{{ form.tanggal_uji.errors }}</p>{% endif %}
+
+            {{ form.lab.label_tag }}
+            {{ form.lab }}
+            {% if form.lab.errors %}<p class="error">{{ form.lab.errors }}</p>{% endif %}
+            
+            {{ form.qc }}
+            
+            <br>
+            <button type="submit" class="btn btn-success">Simpan Hasil Uji</button>
+            <a href="{% url 'batches:detail' kode_batch=batch.kode_batch %}" class="btn btn-secondary">Batal</a>
+        </form>
+    </div>
+{% endblock %}

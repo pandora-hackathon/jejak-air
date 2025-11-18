@@ -41,29 +41,17 @@
     <table>
         <thead>
             <tr>
-                <th>Tanggal Uji</th>
-                <th>Kode Batch</th>
-                <th>Nilai Cs-137</th>
-                <th>Batas Aman</th>
-                <th>Kesimpulan</th>
                 <th>Laboratorium</th>
             </tr>
         </thead>
         <tbody>
             {% for test in histori_lab_test %}
                 <tr>
-                    <td>{{ test.tanggal_uji|date:"d M Y" }}</td>
                     <td>
-                        <a href="{% url 'batches:detail' kode_batch=test.batch.kode_batch %}">
-                            {{ test.batch.kode_batch }}
-                        </a>
+                        {% with lab=test.lab %}
+                            {{ lab.nama|default:"N/A" }}
+                        {% endwith %}
                     </td>
-                    <td>{{ test.nilai_cs137 }} Bq/kg</td>
-                    <td>{{ test.batas_aman_cs137 }} Bq/kg</td>
-                    <td style="color: {% if test.kesimpulan == 'AMAN' %}green{% else %}red{% endif %};">
-                        <strong>{{ test.kesimpulan }}</strong>
-                    </td>
-                    <td>{{ test.lab.nama|default:"N/A" }}</td>
                 </tr>
             {% endfor %}
         </tbody>

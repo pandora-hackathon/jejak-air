@@ -23,6 +23,6 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     # path('batches/', include('batches.urls')),
     # path('farms/', include('farms.urls')),
-    path('labs/', include('labs.urls')),
+    # path('labs/', include('labs.urls')),
     # path('profiles/', include('profiles.urls')),
 ]
