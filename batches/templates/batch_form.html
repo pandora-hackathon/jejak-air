@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if mode == "create" %}Buat Batch Baru - Jejak Air{% else %}Edit Batch - Jejak Air{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="bg-[#033145] text-white min-h-[calc(100vh-120px)]">
+  <div class="max-w-4xl mx-auto px-4 py-10">
+
+    <!-- breadcrumbs / back -->
+    <div class="mb-4">
+      <a href="{% url 'batches:batch_list' %}"
+         class="inline-flex items-center text-xs text-[#E5EEF5]/80 hover:text-white">
+        <span class="mr-1">&larr;</span> Kembali ke daftar batch
+      </a>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-lg border border-slate-100 text-[#033145]">
+      <div class="px-8 pt-8 pb-4 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium tracking-[0.18em] text-[#6A7282] uppercase">
+            Harvest Batch
+          </p>
+          <h1 class="mt-1 text-xl font-semibold">
+            {% if mode == "create" %}Buat Batch Baru{% else %}Edit Data Batch{% endif %}
+          </h1>
+          <p class="mt-1 text-xs text-[#6A7282]">
+            Isi detail batch panen yang akan dicatat di sistem Jejak Air.
+          </p>
+        </div>
+      </div>
+
+      <form method="post" class="px-8 py-6 space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="rounded-xl bg-red-50 border border-red-200 px-4 py-2 text-xs text-red-700">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-[#6A7282] mb-1">
+              Tambak / Farm
+            </label>
+            {{ form.farm }}
+            {% if form.farm.errors %}
+              <p class="mt-1 text-[11px] text-red-600">{{ form.farm.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-[#6A7282] mb-1">
+              Komoditas
+            </label>
+            {{ form.commodity }}
+            {% if form.commodity.errors %}
+              <p class="mt-1 text-[11px] text-red-600">{{ form.commodity.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-[#6A7282] mb-1">
+              Tanggal Tebar
+            </label>
+            {{ form.tanggal_tebar }}
+            {% if form.tanggal_tebar.errors %}
+              <p class="mt-1 text-[11px] text-red-600">{{ form.tanggal_tebar.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-[#6A7282] mb-1">
+              Tanggal Panen
+            </label>
+            {{ form.tanggal_panen }}
+            {% if form.tanggal_panen.errors %}
+              <p class="mt-1 text-[11px] text-red-600">{{ form.tanggal_panen.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-[#6A7282] mb-1">
+              Volume Panen (kg)
+            </label>
+            {{ form.volume_kg }}
+            {% if form.volume_kg.errors %}
+              <p class="mt-1 text-[11px] text-red-600">{{ form.volume_kg.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-[#6A7282] mb-1">
+              Tujuan Ekspor / Buyer
+            </label>
+            {{ form.tujuan }}
+            {% if form.tujuan.errors %}
+              <p class="mt-1 text-[11px] text-red-600">{{ form.tujuan.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        {% for field in form.hidden_fields %}
+          {{ field }}
+        {% endfor %}
+        {% for field in form.visible_fields %}
+          {% if field.name not in "farm commodity tanggal_tebar tanggal_panen volume_kg tujuan" %}
+            <div>
+              <label class="block text-xs font-semibold text-[#6A7282] mb-1">
+                {{ field.label }}
+              </label>
+              {{ field }}
+              {% if field.errors %}
+                <p class="mt-1 text-[11px] text-red-600">{{ field.errors|join:", " }}</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        <!-- Tombol aksi -->
+        <div class="pt-4 flex flex-wrap justify-end gap-3 border-t border-slate-100 mt-4">
+          <a href="{% url 'batches:batch_list' %}"
+             class="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-medium border border-slate-200 text-[#6A7282] hover:bg-slate-50">
+            Batal
+          </a>
+          <button type="submit"
+                  class="inline-flex items-center justify-center px-6 py-2 rounded-full text-sm font-semibold bg-[#287293] text-white hover:bg-[#215c72] shadow-md">
+            {% if mode == "create" %}Simpan Batch{% else %}Simpan Perubahan{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
