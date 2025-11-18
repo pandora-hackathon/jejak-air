@@ -13,7 +13,7 @@ class HarvestBatch(models.Model):
     ]
 
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name="batches")
-    kode_batch = models.CharField(max_length=50, unique=True, blank=True)
+    kode_batch = models.CharField(max_length=50, unique=True, blank=True, primary_key=True)
 
     commodity = models.ForeignKey(
         "Commodity",

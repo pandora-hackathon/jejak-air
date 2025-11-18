@@ -1,4 +1,4 @@
-from pyexpat.errors import messages
+from django.contrib import messages
 from django.shortcuts import redirect, render
 
 
@@ -73,3 +73,15 @@ def dashboard_switcher(request):
     else:
         messages.warning(request, "Role pengguna tidak dikenal.")
         return redirect('home')
+    
+def landing_page(request):
+    kode_batch = (request.GET.get("kode_batch") or "").strip()
+
+    if kode_batch:
+        # Coba cari batch, kalau ada langsung redirect
+        if HarvestBatch.objects.filter(pk=kode_batch).exists():
+            return redirect("batches:batch_detail", pk=kode_batch)
+        else:
+            messages.error(request, "Batch dengan kode tersebut tidak ditemukan.")
+
+    return render(request, "landing-page.html")
