@@ -31,6 +31,13 @@ class LabTest(models.Model):
         limit_choices_to={"user__role": "labAssistant"}, # hanya QC/labAssistant yang bisa input
     )
 
+    lab = models.ForeignKey(
+        'Laboratory',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
+    )
+
     class Meta:
         ordering = ["tanggal_uji"]
 
