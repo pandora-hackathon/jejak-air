@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;   /* border simple */
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="flex justify-center items-center min-h-[80vh] px-4">
+    <div class="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
+        
+        <h1 class="text-center text-3xl font-bold mb-6 text-gray-800">
+            Masuk
+        </h1>
+
+        <form id="loginForm" method="POST" class="space-y-5">
+            {% csrf_token %}
+            
+            <div class="space-y-1">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            </div>
+
+            <div class="space-y-1">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            </div>
+
+            <button type="submit"
+                class="w-full py-3 bg-gradient-to-r from-sky-600 to-teal-500 text-white rounded-lg font-semibold
+                    hover:bg-blue-700 transition shadow">
+                Masuk
+            </button>
+        </form>
+
+        <p class="text-center mt-5 text-gray-600">
+            Belum punya akun?
+            <a href="{% url 'authentication:register' %}"
+                class="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-teal-500 font-medium hover:underline">
+                Daftar di sini
+            </a>
+        </p>
+
+        <div id="message" class="text-center text-red-500 font-semibold mt-3"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    const csrftoken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    try {
+        const response = await fetch("{% url 'authentication:login' %}", {
+            method: "POST",
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData
+        });
+
+        const data = await response.json();
+        if (data.status === "success") {
+            window.location.href = data.redirect_url;
+        } else {
+            document.getElementById('message').innerText =
+                "Login gagal: " + JSON.stringify(data.errors);
+        }
+    } catch (error) {
+        document.getElementById('message').innerText =
+            "Terjadi error: " + error;
+    }
+});
+</script>
+{% endblock %}
