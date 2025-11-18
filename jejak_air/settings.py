@@ -46,8 +46,9 @@ INSTALLED_APPS = [
     'farms',
     'labs',
     'main',
-    'profiles.apps.ProfileConfig',
+    'profiles.apps.ProfilesConfig',
 ]
+
 
 AUTH_USER_MODEL = 'authentication.User'
 

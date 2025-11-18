@@ -1,0 +1,61 @@
+<h2>Selamat Datang, QC {{ user_profile.user.first_name }}</h2>
+
+<h3>Batch Menunggu Uji Lab (Aksi Dibutuhkan)</h3>
+
+{% if batches_pending_test %}
+    <table>
+        <thead>
+            <tr>
+                <th>Kode Batch</th>
+                <th>Farm</th>
+                <th>Tanggal Panen</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for batch in batches_pending_test %}
+                <tr>
+                    <td>{{ batch.kode_batch }}</td>
+                    <td>{{ batch.farm.nama }}</td>
+                    <td>{{ batch.tanggal_panen|date:"d M Y" }}</td>
+                    <td><span style="color: red;">BELUM DIUJI</span></td>
+                    <td>
+                        <a href="{% url 'labs:labtest_create' kode_batch=batch.kode_batch %}">
+                            Input Uji Lab
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Semua batch sudah teruji. Kerja bagus!</p>
+{% endif %}
+
+<hr>
+
+<h3>Histori Uji Lab Anda</h3>
+
+{% if histori_lab_test %}
+    <table>
+        <thead>
+            <tr>
+                <th>Laboratorium</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for test in histori_lab_test %}
+                <tr>
+                    <td>
+                        {% with lab=test.lab %}
+                            {{ lab.nama|default:"N/A" }}
+                        {% endwith %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Anda belum pernah melakukan uji lab.</p>
+{% endif %}
