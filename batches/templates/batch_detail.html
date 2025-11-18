@@ -1,0 +1,293 @@
+{# templates/batches/batch_detail.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F9FAFB] py-8">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Kartu info utama batch -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-[11px] font-medium tracking-[0.18em] uppercase text-[#6A7282]">
+            Kode Batch
+          </p>
+          <h1 class="mt-1 text-2xl font-semibold text-[#033145]">
+            {{ batch.kode_batch }}
+          </h1>
+          <p class="mt-1 text-sm text-[#6A7282]">
+            {{ batch.commodity.name }} • {{ batch.get_quality_status_display }}
+          </p>
+          <p class="mt-2 text-xs text-[#6A7282]">
+            Panen {{ batch.tanggal_panen|date:"d M Y" }} • Volume {{ batch.volume_kg }} kg
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          {% if can_manage %}
+          <a href="{% url 'batches:batch_update' pk=batch.pk %}"
+             class="px-4 py-2 text-sm rounded-full border border-[#287293] text-[#287293]
+                    hover:bg-[#287293] hover:text-white transition">
+            Edit
+          </a>
+          <form method="post" action="{% url 'batches:batch_delete' pk=batch.pk %}">
+            {% csrf_token %}
+            <button type="submit"
+              class="px-4 py-2 text-sm rounded-full border border-red-200 text-red-600
+                     hover:bg-red-50 transition"
+              onclick="return confirm('Hapus batch ini?');">
+              Hapus
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- QR / gambar produk -->
+      <div class="mt-6 bg-[#F9FAFB] rounded-2xl flex items-center justify-center py-10">
+        <div class="w-40 h-40 rounded-2xl border border-dashed border-[#287293]/30
+                    flex items-center justify-center">
+          <!-- ganti dengan <img src="..." /> kalau sudah ada QR -->
+          <span class="text-[11px] text-[#6A7282] text-center">
+            QR code batch<br>ditampilkan di sini
+          </span>
+        </div>
+      </div>
+
+      <!-- Status ringkas -->
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+
+        <!-- Risk score -->
+        <div class="bg-[#F9FAFB] rounded-xl border border-slate-100 px-4 py-3 flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-medium tracking-[0.16em] uppercase text-[#6A7282]">
+              Risk Score
+            </p>
+            <p class="text-sm text-[#033145]">
+              {% if batch.risk_score is not None %}
+                {{ batch.risk_score }}/100
+              {% else %}
+                Belum ada
+              {% endif %}
+            </p>
+          </div>
+          {% if batch.risk_score is not None %}
+            {% if batch.risk_score < 40 %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px]
+                           bg-emerald-50 text-emerald-700 font-medium">
+                Rendah ({{ batch.risk_score }}/100)
+              </span>
+            {% elif batch.risk_score < 70 %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px]
+                           bg-amber-50 text-amber-700 font-medium">
+                Sedang ({{ batch.risk_score }}/100)
+              </span>
+            {% else %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px]
+                           bg-[#D94D28]/10 text-[#D94D28] font-medium">
+                Tinggi ({{ batch.risk_score }}/100)
+              </span>
+            {% endif %}
+          {% else %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px]
+                         bg-slate-100 text-slate-500 font-medium">
+              Menunggu uji lab
+            </span>
+          {% endif %}
+        </div>
+
+        <!-- Status lab (contoh sederhana berdasarkan risk_score ada / tidak) -->
+        <div class="bg-[#F9FAFB] rounded-xl border border-slate-100 px-4 py-3 flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-medium tracking-[0.16em] uppercase text-[#6A7282]">
+              Status Lab
+            </p>
+            <p class="text-sm text-[#033145]">
+              {% if batch.risk_score is not None %}
+                Passed
+              {% else %}
+                Menunggu hasil
+              {% endif %}
+            </p>
+          </div>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px]
+                       bg-[#287293]/10 text-[#287293] font-medium">
+            {% if batch.risk_score is not None %}✓ Passed{% else %}• Pending{% endif %}
+          </span>
+        </div>
+
+        <!-- Pengiriman + tombol kirim / diterima -->
+        <div class="bg-[#F9FAFB] rounded-xl border border-slate-100 px-4 py-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-medium tracking-[0.16em] uppercase text-[#6A7282]">
+                Pengiriman
+              </p>
+              <p class="text-sm text-[#033145]">
+                {% if has_received_activity %}
+                  Diterima
+                {% elif batch.shipment_status == "SUDAH_DIKIRIM" %}
+                  In Transit
+                {% elif batch.shipment_status == "LAYAK_KIRIM" %}
+                  Layak kirim
+                {% elif batch.shipment_status == "DITAHAN" %}
+                  Ditahan
+                {% else %}
+                  Belum ditinjau
+                {% endif %}
+              </p>
+            </div>
+
+            {% if has_received_activity %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px]
+                           bg-emerald-50 text-emerald-700 font-medium">
+                ✓ Diterima
+              </span>
+            {% elif batch.shipment_status == "SUDAH_DIKIRIM" %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px]
+                           bg-[#D94D28]/10 text-[#D94D28] font-medium">
+                In Transit
+              </span>
+            {% elif batch.shipment_status == "DITAHAN" %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px]
+                           bg-red-50 text-red-600 font-medium">
+                Ditahan
+              </span>
+            {% endif %}
+          </div>
+
+          <!-- Tombol aksi -->
+          <div class="mt-3 flex flex-wrap gap-2">
+            {% if can_manage %}
+                {% if batch.shipment_status == "LAYAK_KIRIM" %}
+                <form method="post" action="{% url 'batches:batch_mark_shipped' pk=batch.pk %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                    class="px-3 py-1.5 text-xs rounded-full bg-[#287293] text-white font-medium
+                            hover:opacity-90 transition">
+                    Kirim
+                    </button>
+                </form>
+                {% elif batch.shipment_status == "SUDAH_DIKIRIM" and not has_received_activity %}
+                <form method="post" action="{% url 'batches:batch_mark_received' pk=batch.pk %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                    class="px-3 py-1.5 text-xs rounded-full bg-[#D94D28] text-white font-medium
+                            hover:opacity-90 transition">
+                    Tandai Diterima
+                    </button>
+                </form>
+                {% endif %}
+            {% endif %}
+
+            {% if has_received_activity %}
+                <p class="text-[11px] text-emerald-600">
+                Batch sudah diterima pihak tujuan.
+                </p>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bagian bawah: Timeline + info tambak -->
+    <div class="grid gap-6 md:grid-cols-3">
+
+      <!-- Batch timeline -->
+      <div class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-[#033145]">Batch Timeline</h2>
+            <p class="text-xs text-[#6A7282]">{{ batch.kode_batch }}</p>
+          </div>
+          {% if can_manage %}
+          <a href="{% url 'batches:activity_manual_create' pk=batch.pk %}"
+             class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium
+                    bg-[#287293] text-white hover:opacity-90 transition">
+            + Tambah aktivitas
+          </a>
+          {% endif %}
+        </div>
+
+        {% if activities %}
+          <ol class="relative border-l border-slate-200 ml-4 space-y-6">
+            {% for act in activities %}
+              <li class="ml-4">
+                <!-- bullet lingkaran -->
+                <div class="absolute -left-[9px] w-5 h-5 rounded-full flex items-center justify-center
+                            {% if forloop.last and act.jenis != 'DITERIMA' %}
+                              bg-[#D94D28]
+                            {% else %}
+                              bg-[#287293]
+                            {% endif %}">
+                  <span class="text-[10px] text-white font-semibold">
+                    {{ forloop.counter }}
+                  </span>
+                </div>
+
+                <!-- card activity -->
+                <div class="bg-[#F9FAFB] rounded-xl px-4 py-3">
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-sm font-semibold text-[#033145]">
+                      {{ act.get_jenis_display }}
+                    </p>
+                    <p class="text-xs text-[#6A7282]">
+                      {{ act.tanggal|date:"d M Y" }}
+                    </p>
+                  </div>
+                  <p class="mt-1 text-xs text-[#6A7282]">
+                    {{ act.lokasi }}
+                  </p>
+                  {% if act.keterangan %}
+                    <p class="mt-1 text-xs text-[#6A7282]">
+                      {{ act.keterangan }}
+                    </p>
+                  {% endif %}
+                  <p class="mt-1 text-[11px] text-[#6A7282]">
+                    Pelaku:
+                    <span class="font-medium text-[#033145]">{{ act.pelaku }}</span>
+                  </p>
+
+                  {% if forloop.last and act.jenis != "DITERIMA" %}
+                    <span class="inline-flex mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium
+                                 bg-[#D94D28]/10 text-[#D94D28]">
+                      • Proses
+                    </span>
+                  {% else %}
+                    <span class="inline-flex mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium
+                                 bg-emerald-50 text-emerald-700">
+                      ✓ Selesai
+                    </span>
+                  {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        {% else %}
+          <p class="text-sm text-[#6A7282]">
+            Belum ada aktivitas untuk batch ini.
+          </p>
+        {% endif %}
+      </div>
+
+      <!-- Asal tambak -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <p class="text-[11px] font-medium tracking-[0.16em] uppercase text-[#6A7282]">
+          Asal Tambak
+        </p>
+        <p class="mt-2 text-sm font-semibold text-[#033145]">
+          {{ batch.farm.name }}
+        </p>
+        <p class="mt-1 text-xs text-[#6A7282]">
+          {{ batch.farm.location }}
+        </p>
+        <p class="mt-4 text-xs text-[#6A7282]">
+          Tujuan ekspor:
+          <span class="font-medium text-[#033145]">{{ batch.tujuan }}</span>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
