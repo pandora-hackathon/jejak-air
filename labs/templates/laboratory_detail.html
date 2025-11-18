@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Detail Laboratorium: {{ lab.nama }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Detail Laboratorium</h2>
+
+        <div>
+            <p><strong>Nama:</strong> {{ lab.nama }}</p>
+            <p><strong>Kota:</strong> {{ lab.city.nama }}</p>
+            <p><strong>Jumlah Uji Lab (Historis):</strong> {{ lab.lab_tests.count }}</p>
+        </div>
+
+        <a href="{% url 'labs:laboratory_list' %}" class="btn btn-secondary">Kembali ke Daftar</a>
+        <a href="{% url 'labs:laboratory_delete' pk=lab.pk %}" class="btn btn-danger">Hapus Laboratorium</a>
+    </div>
+{% endblock %}

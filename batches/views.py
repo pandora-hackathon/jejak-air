@@ -29,6 +29,56 @@ def _check_batch_owner(request, batch: HarvestBatch):
         raise PermissionDenied("Anda tidak berhak mengubah batch dari tambak lain.")
     return profile
 
+# batches/views.py
+from .models import HarvestBatch, Activity
+from django.utils import timezone
+
+def _get_pelaku_from_farm(farm):
+    pelaku = farm.name
+    owner_profile = getattr(farm, "owner", None)
+    if owner_profile is not None:
+        user = getattr(owner_profile, "user", None)
+        if user is not None:
+            pelaku = user.get_full_name() or user.username
+    return pelaku
+
+
+def _ensure_default_activities(batch: HarvestBatch):
+    """Bikin activity PENEBARAN/PANEN/DARI_TAMBAK kalau belum ada sama sekali."""
+    if batch.activities.exists():
+        return
+
+    farm = batch.farm
+    pelaku = _get_pelaku_from_farm(farm)
+
+    if batch.tanggal_tebar:
+        Activity.objects.create(
+            batch=batch,
+            tanggal=batch.tanggal_tebar,
+            jenis="PENEBARAN",
+            lokasi=farm.location,
+            pelaku=pelaku,
+            keterangan="Penebaran benur awal siklus",
+        )
+
+    Activity.objects.create(
+        batch=batch,
+        tanggal=batch.tanggal_panen,
+        jenis="PANEN",
+        lokasi=farm.location,
+        pelaku=pelaku,
+        keterangan="Panen utama",
+    )
+
+    Activity.objects.create(
+        batch=batch,
+        tanggal=batch.created_at.date() if batch.created_at else timezone.now().date(),
+        jenis="DARI_TAMBAK",
+        lokasi=farm.location,
+        pelaku=pelaku,
+        keterangan="Batch didaftarkan ke sistem oleh farm owner",
+    )
+
 
 # @login_required
 def batch_list(request):
@@ -56,6 +106,7 @@ def batch_detail(request, pk):
         pk=pk,
     )
     # _check_batch_owner(request, batch)
+    _ensure_default_activities(batch)
 
     activities = batch.activities.all()
     has_received_activity = activities.filter(jenis="DITERIMA").exists()

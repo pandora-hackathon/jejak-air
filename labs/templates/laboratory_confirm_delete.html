@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Hapus Laboratorium{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Konfirmasi Penghapusan</h2>
+        
+        <p>Apakah Anda yakin ingin menghapus laboratorium <strong>"{{ lab.nama }}"</strong>?</p>
+        <p class="alert alert-warning">
+            Penghapusan ini bersifat permanen dan tidak dapat dikembalikan. Jika laboratorium ini memiliki riwayat uji lab, penghapusan akan dicegah.
+        </p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Ya, Hapus Permanen</button>
+            <a href="{% url 'labs:laboratory_detail' pk=lab.pk %}" class="btn btn-secondary">Batal</a>
+        </form>
+    </div>
+{% endblock %}
