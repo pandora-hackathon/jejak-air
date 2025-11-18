@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'profiles.apps.ProfilesConfig',
 ]
 
+
 AUTH_USER_MODEL = 'authentication.User'
 
 MIDDLEWARE = [
