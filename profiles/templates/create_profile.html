@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+<div class="w-[1164px] h-[987px] relative bg-gradient-to-br from-blue-50 to-gray-50">
+    <div class="w-[1164.44px] h-16 px-40 pb-[0.74px] left-0 top-0 absolute bg-white shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.10)] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.10)] border-b-[0.74px] border-black/10 inline-flex flex-col justify-start items-start">
+        <div class="self-stretch h-16 inline-flex justify-start items-center gap-4">
+            <div class="w-24 h-8 relative rounded-lg">
+                <div class="w-4 h-4 left-[9.99px] top-[8px] absolute overflow-hidden">
+                </div>
+                <div class="left-[39.98px] top-[4.74px] absolute justify-start text-neutral-950 text-sm font-normal font-['Arial'] leading-5">Kembali</div>
+            </div>
+            <div class="w-96 h-12 relative">
+                <div class="w-96 h-8 left-0 top-0 absolute inline-flex justify-start items-start">
+                    <div class="flex-1 justify-start text-cyan-950 text-2xl font-normal font-['Arial'] leading-8">Lengkapi data diri</div>
+                </div>
+                <div class="w-96 h-5 left-0 top-[32px] absolute">
+                    <div class="left-0 top-[-1.26px] absolute justify-start text-gray-500 text-sm font-normal font-['Arial'] leading-5">lengkapi data diri</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-[832px] h-[1070px] left-[166px] top-[96.50px] absolute">
+
+        <!-- PROFILE PICTURE -->
+        <div class="w-[832.01px] h-80 pl-8 pt-8 left-0 top-0 absolute bg-white rounded-2xl shadow-lg outline outline-[1.48px] outline-offset-[-1.48px] outline-cyan-700 inline-flex flex-col justify-start items-start">
+            <div class="w-[765.07px] h-64 flex flex-col justify-start items-start gap-2">
+                <div class="self-stretch h-7 inline-flex justify-start items-start">
+                    <div class="flex-1 text-center justify-start text-cyan-950 text-xl font-normal font-['Arial'] leading-7">Foto Profile</div>
+                </div>
+                <div class="self-stretch h-5 relative">
+                    <div class="left-[266.67px] top-[-1.26px] absolute text-center justify-start text-gray-500 text-sm font-normal font-['Arial'] leading-5">
+                        Upload foto profile Anda (Maks. 5MB)
+                    </div>
+                </div>
+
+                <div class="self-stretch h-44 relative">
+
+                    <!-- Button Upload -->
+                    <div class="w-80 h-9 left-[222.53px] top-[143.99px] absolute">
+                        {{ form.picture }}
+                    </div>
+
+                    <!-- Preview Circle -->
+                    <div class="w-32 h-32 left-[318.53px] top-0 absolute rounded-full outline outline-4 outline-offset-[-3.70px] outline-cyan-700 inline-flex justify-start items-start overflow-hidden">
+                        <div class="w-32 h-32 bg-cyan-700/10 rounded-full flex justify-center items-center">
+                            {% if form.instance.picture %}
+                                <img src="{{ form.instance.picture.url }}" class="w-32 h-32 object-cover rounded-full">
+                            {% else %}
+                                <div class="text-center justify-start text-cyan-700 text-3xl font-normal font-['Arial'] leading-9">?</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMASI PRIBADI -->
+        <div class="w-[832.01px] h-80 left-0 top-[342.92px] absolute bg-white rounded-2xl shadow-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-black/10 inline-flex flex-col justify-start items-start">
+            <div class="w-[830.53px] h-80 px-6 pt-6 flex flex-col justify-start items-start gap-4">
+
+                <div class="self-stretch h-7 inline-flex justify-start items-center gap-2">
+                    <div class="justify-start text-cyan-950 text-xl font-normal font-['Arial'] leading-7">Informasi Pribadi</div>
+                </div>
+
+                <div class="self-stretch h-px bg-black/10"></div>
+
+                <!-- FULL NAME -->
+                <div class="self-stretch h-20 flex flex-col gap-2">
+                    <div class="self-stretch h-6 relative">
+                        <div class="left-0 top-[-1.52px] absolute text-neutral-950 text-base font-normal leading-6">Nama Lengkap</div>
+                        <div class="w-1.5 h-6 left-[117.19px] top-0 absolute text-red-500">*</div>
+                    </div>
+                    <div class="self-stretch h-12">
+                        {{ form.full_name }}
+                    </div>
+                </div>
+
+                <!-- PHONE NUMBER -->
+                <div class="self-stretch h-24 flex flex-col gap-2">
+                    <div class="self-stretch h-6 relative">
+                        <div class="left-0 top-[-1.52px] absolute text-neutral-950 text-base font-normal leading-6">Nomor HP</div>
+                        <div class="w-1.5 h-6 left-[84.97px] top-0 absolute text-red-500">*</div>
+                    </div>
+                    <div class="self-stretch h-12">
+                        {{ form.number_phone }}
+                    </div>
+                    <div class="self-stretch h-4 text-gray-500 text-xs">Format: +62xxx atau 08xxx</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="w-[832.01px] h-14 left-[8.49px] top-[756.50px] absolute inline-flex justify-start items-start gap-4">
+            <a href="/" class="w-24 h-10 px-8 bg-white rounded-lg outline outline-[0.74px] outline-offset-[-0.74px] outline-black/10 flex justify-center items-center">
+                <div class="text-neutral-950 text-sm font-normal">Batal</div>
+            </a>
+
+            <button type="submit" class="flex-1 h-14 bg-cyan-700 rounded-lg relative text-white text-lg">
+                <div class="absolute left-[309.42px] top-[12.49px]">Daftar Sekarang</div>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+</form>
+{% endblock content %}
