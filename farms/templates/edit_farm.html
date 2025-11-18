@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Edit Tambak</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="bg-gray-50 w-full min-h-screen">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Back Navigation -->
+    <div class="mb-6 flex items-center gap-2">
+      <a href="{% url 'main:home' %}" 
+         class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+        ← Kembali
+      </a>
+    </div>
+
+    <!-- PAGE TITLE -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Edit Tambak</h1>
+      <p class="text-gray-600">Perbarui informasi tambak Anda</p>
+    </div>
+
+    <form method="POST" class="space-y-10">
+      {% csrf_token %}
+
+      <!-- Informasi Kota -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-blue-500 text-2xl">🏙️</span> Informasi Kota
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+          <!-- Nama Kota -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nama Kota
+            </label>
+            <input 
+              type="text" 
+              value="{{ form.instance.city.name }}" 
+              class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+              readonly>
+          </div>
+
+          <!-- Provinsi -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Provinsi
+            </label>
+            <input 
+              type="text" 
+              value="{{ form.instance.city.province }}" 
+              class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+              readonly>
+          </div>
+
+          <!-- Code -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Kode Kota
+            </label>
+            <input 
+              type="text" 
+              value="{{ form.instance.city.code }}" 
+              class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+              readonly>
+          </div>
+
+        </div>
+
+        <p class="text-xs text-gray-500 mt-3">
+          *Informasi kota tidak dapat diubah di halaman ini.
+        </p>
+      </div>
+
+      <!-- Informasi Tambak -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-green-500 text-2xl">🐟</span> Informasi Tambak
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+          <!-- Nama Tambak -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nama Tambak <span class="text-red-500">*</span>
+            </label>
+            {{ form.name }}
+            {% for error in form.name.errors %}
+              <p class="text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+        </div>
+
+        <!-- Lokasi -->
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Alamat Lengkap
+          </label>
+          {{ form.location }}
+          {% for error in form.location.errors %}
+            <p class="text-sm text-red-600">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <!-- Skor Risiko -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-yellow-500 text-2xl">⚠️</span> Skor Risiko Tambak
+        </h2>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Risk Score (0 - 100)
+          </label>
+          {{ form.risk_score }}
+          {% for error in form.risk_score.errors %}
+            <p class="text-sm text-red-600">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 pt-4">
+        <a href="{% url 'main:home' %}"
+          class="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-center">
+          Batal
+        </a>
+
+        <button type="submit"
+          class="order-1 sm:order-2 flex-1 bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors">
+          Simpan Perubahan
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
